@@ -168,7 +168,13 @@ function actualizarFavoritos(){
     });
 };
 //
+//
 
+//
+
+//
+
+//
 //Filtar por escala:
 function filtrarPorEscala(escala) {
     document.getElementById('seccion-catalogo').innerHTML= "";
