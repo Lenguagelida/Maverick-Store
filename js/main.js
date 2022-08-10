@@ -1,5 +1,6 @@
 const carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; // "(??)" Si el array de carrito es null o undefined que muestre vacio.
 document.getElementById('contador-carrito').innerHTML = carrito.length; //Asi mostramos la cantidad de productos del carrito cuando actualizamos la pagina.
+precioCantidadAcumulador();
 const favoritos = JSON.parse(localStorage.getItem('favoritos')) ??[];
 document.getElementById('contador-favoritos').innerHTML = favoritos.length;
 
@@ -38,28 +39,41 @@ cardsContructor();
 //
 
 //Agregar al carrito:
-maquetas.forEach((maqueta) => {
-    const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
-    document.getElementById(IdBotonCarrito).addEventListener('click', () => {
-        carrito.push(maqueta);
-        document.getElementById('contador-carrito').innerHTML = carrito.length;
-        localStorage.setItem('carrito', JSON.stringify(carrito));
-        // console.log(carrito);
+function agregarAlCarrito(){
+    maquetas.forEach((maqueta) => {
+        const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
+        document.getElementById(IdBotonCarrito).addEventListener('click', () => {
+            carrito.push(maqueta);
+            precioCantidadAcumulador();
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            // console.log(carrito);
+        });
     });
-});
+};
 
+    //Acumulador Precio Carrito:
+    function precioCantidadAcumulador(){
+        const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
+        document.getElementById('contador-carrito').innerHTML = carrito.length + "- Total: $"+totalPrecio;
+    };
+
+agregarAlCarrito();
 //
 
 //Agregar a favoritos:
-maquetas.forEach((maqueta) => {
-    const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
-    document.getElementById(IdBotonFavorito).addEventListener('click', () => {
-        favoritos.push(maqueta);
-        document.getElementById('contador-favoritos').innerHTML = favoritos.length;
-        localStorage.setItem('favoritos', JSON.stringify(favoritos));
-        console.log(favoritos);
+function agregarFavorito() {    
+    maquetas.forEach((maqueta) => {
+        const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
+        document.getElementById(IdBotonFavorito).addEventListener('click', () => {
+            favoritos.push(maqueta);
+            document.getElementById('contador-favoritos').innerHTML = favoritos.length;
+            localStorage.setItem('favoritos', JSON.stringify(favoritos));
+            console.log(favoritos);
+        });
     });
-});
+};
+
+agregarFavorito();
 
 //Mostrar carrito en modal:
 function cardsCarrito(){
@@ -167,11 +181,6 @@ function actualizarFavoritos(){
         location.reload();
     });
 };
-//
-//
-
-//
-
 //
 
 //
