@@ -36,7 +36,7 @@
                     <button type="button" class="btn btn-outline-dark mx-1" id="btn-carrito" data-bs-toggle="modal" data-bs-target="#exampleModal">
                         <i class="bi-cart-fill me-1"></i>
                         Carrito
-                        <span class="badge bg-dark text-white ms-1 rounded-pill" id="contador-carrito">0</span>
+                        <span class="badge bg-dark text-white ms-1 rounded-pill" id="total-carrito">0</span>
                     </button>
                         <!-- Modal del carrito -->
                         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">            
@@ -53,6 +53,7 @@
                                                         <th>Código</th>
                                                         <th>Nombre</th>
                                                         <th>Imágen</th>
+                                                        <th>Cantidad</th>
                                                         <th>Precio</th>
                                                         <th></th>
                                                     </tr>
@@ -86,6 +87,7 @@
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
+                                                    <th>Código</th>
                                                     <th>Nombre</th>
                                                     <th>Imágen</th>
                                                     <th>Precio</th>
@@ -119,7 +121,47 @@
             
         </div>
     </section>
-
+    <hr>
+    <hr>
+    <h1>CARRITO</h1>
+    <section id="seccion-Carrito2">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Imágen</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="cards-carrito2">
+                
+            </tbody>
+        </table>
+    </section>
+    <hr>
+    <hr>
+    <h2>FAVORITOS</h2>
+    <section id="seccion-favoritos2">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Imágen</th>
+                    <th>Precio</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="cards-favoritos2">
+                
+            </tbody>
+        </table>
+    </section>
+    <hr><hr>
     <!--SCRIPTS-->
     <script src="js/main.js"></script>
     <!--Bootstrap JS-->

@@ -1,10 +1,3 @@
-const carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; // "(??)" Si el array de carrito es null o undefined que muestre vacio.
-document.getElementById('contador-carrito').innerHTML = carrito.length; //Asi mostramos la cantidad de productos del carrito cuando actualizamos la pagina.
-precioCantidadAcumulador();
-const favoritos = JSON.parse(localStorage.getItem('favoritos')) ??[];
-document.getElementById('contador-favoritos').innerHTML = favoritos.length;
-
-
 //Productos:
 const maquetas =[
     {id:001, nombre: 'F-16F Fighting Falcon Block 60', marca:'Hasegawa', escala:"1/72", precio:15000, image:'./assets/cards/f16d fighting falcon.jpg'},
@@ -13,199 +6,211 @@ const maquetas =[
     {id:004, nombre: 'Messerschmitt Me262A ISS1', marca:'Hasegawa', escala:"1/32", precio:23000, image:'./assets/cards/me262a iss1.jpg'},
 ];
 
-//Cosntruccion de cards:
-function cardsContructor() {
-    maquetas.forEach((maqueta) => {
-        const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
-        const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
-        document.getElementById('seccion-catalogo').innerHTML +=
-                        `<div class="card col -3" style="width: 22rem;">
-                            <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
-                            <div class="card-body">
-                                <h5 class="card-title">${maqueta.nombre}</h5>
-                                <p class="card-text">${maqueta.marca}</p>
-                                <p class="card-text">Escala: ${maqueta.escala}</p>
-                                <p class="card-text">Precio: $${maqueta.precio}</p>
-                                <div class="container d-flex justify-content-center">
-                                    <a  id="${IdBotonCarrito}" class="btn btn-primary">Agregar al carrito</a>
-                                    <a  id="${IdBotonFavorito}" class="btn btn-danger">Agregar a favoritos</a>
-                                </div>
+let contadorCarrito = 0;
+let contadorFavoritos = 0;
+const carrito = JSON.parse(localStorage.getItem('carrito')) ?? []; // "(??)" Si el array de carrito es null o undefined que muestre vacio.
+const favoritos = JSON.parse(localStorage.getItem('favoritos')) ?? [];
+
+const maquetaCard = (maqueta) => {
+    const card = 
+                `<div class="card col -3" style="width: 22rem;">
+                    <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
+                        <div class="card-body">
+                            <h5 class="card-title">${maqueta.nombre}</h5>
+                            <p class="card-text">${maqueta.marca}</p>
+                            <p class="card-text">Escala: ${maqueta.escala}</p>
+                            <p class="card-text">Precio: $${maqueta.precio}</p>
+                            <div class="container d-flex justify-content-center">
+                                <a  id="agregar-carrito${maqueta.id}" class="btn btn-primary">Agregar al carrito</a>
+                                <a  id="agregar-favorito${maqueta.id}" class="btn btn-secondary">Agregar a favoritos</a>
                             </div>
-                        </div>`
-    });
-}
-cardsContructor();
+                        </div>
+                </div>`
+    return card;
+};
 
-//
+const verCarrito = (maqueta) => {
+    const filaCarrito =
+                        `<tr id="${maqueta.idFila}">
+                            <td>${maqueta.id}</td>
+                                <td>${maqueta.nombre}</td>
+                                <td>
+                                    <img src="${maqueta.img}" style="width: 55px">
+                                </td>
+                                <td>${maqueta.cantidad}</td>
+                                <td>$${maqueta.precio}</td>
+                                <td>
+                                    <button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger">X</button>
+                            </td>
+                        </tr>`
+    return filaCarrito;
+};
 
-//Agregar al carrito:
-function agregarAlCarrito(){
+const seccionCatalogo = () => {
+    const nodoCatalogo =  document.getElementById("seccion-catalogo");
+    let catalogo = "";
     maquetas.forEach((maqueta) => {
-        const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
-        document.getElementById(IdBotonCarrito).addEventListener('click', () => {
-            carrito.push(maqueta);
-            precioCantidadAcumulador();
+        catalogo += maquetaCard(maqueta);
+    });
+    nodoCatalogo.innerHTML = catalogo;
+    btnAgregarCarrito();
+    btnFavoritos();
+};
+
+const modalCarrito = () => {
+    const nodoCarrito = document.getElementById("cards-carrito");
+    const nodoCarrito2 = document.getElementById("cards-carrito2");//Testeo
+    let seccionCarrito = "";
+    carrito.forEach((maqueta) => {
+        seccionCarrito += verCarrito(maqueta);
+    });
+    nodoCarrito.innerHTML = seccionCarrito;
+    nodoCarrito2.innerHTML = seccionCarrito;// Testeo
+    btnQuitarCarrito();
+    cantidadPrecioNavbar();
+};
+
+const btnAgregarCarrito = () => {
+    maquetas.forEach((maqueta) => {
+        const idBotonCarrito = `agregar-carrito${maqueta.id}`;
+        const botonNodoAgregar = document.getElementById(idBotonCarrito);
+
+        botonNodoAgregar.addEventListener('click', () =>{
+            const maquetaEnCarrito = {
+                id : maqueta.id,
+                nombre : maqueta.nombre,
+                img : maqueta.image,
+                cantidad: 1,
+                precio : maqueta.precio,
+                idFila : contadorCarrito,
+            };
+            contadorCarrito += 1;
+            carrito.push(maquetaEnCarrito);
             localStorage.setItem('carrito', JSON.stringify(carrito));
-            // console.log(carrito);
+            console.log(carrito);
+            modalCarrito();
         });
     });
 };
 
-    //Acumulador Precio Carrito:
-    function precioCantidadAcumulador(){
-        const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
-        document.getElementById('contador-carrito').innerHTML = carrito.length + "- Total: $"+totalPrecio;
-    };
+const btnQuitarCarrito = () => {
+    carrito.forEach((maqueta) => {
+        const idBotonQuitar = `eliminar${maqueta.idFila}`;
+        const botonNodoQuitar = document.getElementById(idBotonQuitar);
 
-agregarAlCarrito();
-//
+        botonNodoQuitar.addEventListener('click', () => {
+            const indice = carrito.findIndex((item) => item.idFila == maqueta.idFila);
+            console.log(indice);
+            carrito.splice(indice, 1);
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            modalCarrito();
+        });
+    });
+};
 
-//Agregar a favoritos:
-function agregarFavorito() {    
+const cantidadPrecioNavbar = () => {
+    const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
+    document.getElementById('total-carrito').innerHTML = carrito.length + "- Total: $"+totalPrecio;
+};
+
+//FUNCIONES PARA FAVORITOS:
+const verFavoritos = (maqueta) => {
+    const filaFavoritos =
+                        `<tr id="${maqueta.favIdFila}">
+                                <td>${maqueta.favId}</td>
+                                <td>${maqueta.favNombre}</td>
+                                <td>
+                                    <img src="${maqueta.favImg}" style="width: 55px">
+                                </td>
+                                <td>$${maqueta.favPrecio}</td>
+                                <td>
+                                    <button id="eliminar-${maqueta.favIdFila}" class="btn btn-outline-danger">X</button>
+                            </td>
+                        </tr>`
+    return filaFavoritos;
+};
+
+const modalFavoritos = () => {
+    const nodoFavoritos = document.getElementById("cards-favoritos");
+    const nodoFavoritos2 = document.getElementById("cards-favoritos2");//Testeo
+    let seccionFavoritos = "";
+    favoritos.forEach((maqueta) => {
+        seccionFavoritos += verFavoritos(maqueta);
+    });
+    nodoFavoritos.innerHTML = seccionFavoritos;
+    nodoFavoritos2.innerHTML = seccionFavoritos;// Testeo
+    btnQuitarFavorito();
+    contadorFavoritosNavbar();
+};
+
+const btnFavoritos = () => {
     maquetas.forEach((maqueta) => {
-        const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
-        document.getElementById(IdBotonFavorito).addEventListener('click', () => {
-            favoritos.push(maqueta);
-            document.getElementById('contador-favoritos').innerHTML = favoritos.length;
+        const idAgregaFavorito = `agregar-favorito${maqueta.id}`;
+        const botonNodoFavoritos = document.getElementById(idAgregaFavorito);
+
+        botonNodoFavoritos.addEventListener('click', () =>{
+            const maquetaEnFavoritos = {
+                favId: maqueta.id,
+                favNombre : maqueta.nombre,
+                favImg : maqueta.image,
+                favPrecio : maqueta.precio,
+                favIdFila : contadorFavoritos,
+            };
+            contadorFavoritos += 1;
+            favoritos.push(maquetaEnFavoritos);
             localStorage.setItem('favoritos', JSON.stringify(favoritos));
+            modalFavoritos();
             console.log(favoritos);
         });
     });
 };
 
-agregarFavorito();
+const btnQuitarFavorito = () => {
+    favoritos.forEach((maqueta) => {
+        const idBotonQuitarFav = `eliminar-${maqueta.favIdFila}`;
+        const botonNodoQuitarFav = document.getElementById(idBotonQuitarFav);
 
-//Mostrar carrito en modal:
-function cardsCarrito(){
-    document.getElementById('cards-carrito').innerHTML = "";
-    carrito.forEach((maqueta) => {
-        const idBotonEliminar = `btn-eliminar${maqueta.id}`;
-        const idElementoCarrito = `elementoCarrito${maqueta.id}`;
-        document.getElementById('cards-carrito').innerHTML +=
-        `<tr id="${idElementoCarrito}">
-            <td>${maqueta.id}</td>
-                <td>${maqueta.nombre}</td>
-                <td>
-                    <img src="${maqueta.image}" style="width: 75px">
-                </td>
-                <td>${maqueta.precio}</td>
-                <td>
-                    <button id="${idBotonEliminar}">X</button>
-            </td>
-        </tr>`
-    });
-    borrarElementoCarrito();
-    actualizarCarrito();
-};
-
-function verCarrito(){
-    document.getElementById("btn-carrito").addEventListener("click",() => {
-        cardsCarrito();
-    });
-};
-    //Borrar elemento del carrito: 
-function borrarElementoCarrito(){
-    carrito.forEach((maqueta) => {
-        const idBotonEliminar = `btn-eliminar${maqueta.id}`;
-        const idElementoCarrito = `elementoCarrito${maqueta.id}`;
-        document.getElementById(idBotonEliminar).addEventListener('click', () => {
-            let carritoActual = JSON.parse(localStorage.getItem("carrito"));
-            let nuevoCarrito = carritoActual.filter(el => el.id != maqueta.id);
-            localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
-            document.getElementById(idElementoCarrito).remove();
+        botonNodoQuitarFav.addEventListener('click', () => {
+            const indice = favoritos.findIndex((item) => item.favIdFila == maqueta.favIdFila);
+            console.log(indice);
+            favoritos.splice(indice, 1);
+            localStorage.setItem('favoritos', JSON.stringify(favoritos));
+            modalFavoritos();
         });
     });
 };
 
-verCarrito();
-//
-
-// Mostrar favoritos en modal:
-function cardsFavoritos(){
-    document.getElementById('cards-favoritos').innerHTML = "";
-    favoritos.forEach((maqueta) => {
-        const idBotonEliminar = `btn-eliminarFavorito${maqueta.id}`;
-        const idElementoFavoritos = `elementoFavorito${maqueta.id}`;
-        document.getElementById('cards-favoritos').innerHTML +=
-        `<tr id="${idElementoFavoritos}">
-            <td>${maqueta.nombre}</td>
-                <td>
-                    <img src="${maqueta.image}" style="width: 75px">
-                </td>
-                <td>${maqueta.precio}</td>
-                <td>
-                    <button id="${idBotonEliminar}">X</button>
-                </td>
-                <td>
-                    <button>
-                        <i class="bi bi-cart-plus-fill"></i>
-                    </button>
-                </td>
-        </tr>`
-    });
-    borrarElementoFavoritos();
-    actualizarFavoritos();
+const contadorFavoritosNavbar = () => {
+    document.getElementById('contador-favoritos').innerHTML = favoritos.length;
 };
 
-function verFavoritos(){
-    document.getElementById("btn-favoritos").addEventListener("click",() => {
-        cardsFavoritos();
-    });
-};
-    //Borrar elemento de favoritos: 
-function borrarElementoFavoritos(){
-    favoritos.forEach((maqueta) => {
-        const idBotonEliminar = `btn-eliminarFavorito${maqueta.id}`;
-        const idElementoFavoritos = `elementoFavorito${maqueta.id}`;
-        document.getElementById(idBotonEliminar).addEventListener('click', () => {
-            let favoritosActual = JSON.parse(localStorage.getItem("favoritos"));
-            let nuevoFavoritos = favoritosActual.filter(el => el.id != maqueta.id);
-            localStorage.setItem("favoritos", JSON.stringify(nuevoFavoritos));
-            document.getElementById(idElementoFavoritos).remove();
-        });
-    });
-};
-
-verFavoritos();
+//Inicializar la página:
+seccionCatalogo();
 //
 
-//Actualizar página para contadores:
-function actualizarCarrito(){
-    document.getElementById('cierraModalCart').addEventListener('click',()=>{
-        location.reload();
-    });
-};
 
-function actualizarFavoritos(){
-    document.getElementById('cierraModalFav').addEventListener('click',()=>{
-        location.reload();
-    });
-};
-//
+// //Filtar por escala:
+// function filtrarPorEscala(escala) {
+//     document.getElementById('seccion-catalogo').innerHTML= "";
+//     const maquetasFiltradas = maquetas.filter((maqueta) => maqueta.escala == escala);
 
-//
-//Filtar por escala:
-function filtrarPorEscala(escala) {
-    document.getElementById('seccion-catalogo').innerHTML= "";
-    const maquetasFiltradas = maquetas.filter((maqueta) => maqueta.escala == escala);
-
-    maquetasFiltradas.forEach((maqueta) => {
-        const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
-        const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
-        document.getElementById('seccion-catalogo').innerHTML +=
-                        `<div class="card col -3" style="width: 22rem;">
-                            <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
-                            <div class="card-body">
-                                <h5 class="card-title">${maqueta.nombre}</h5>
-                                <p class="card-text">${maqueta.marca}</p>
-                                <p class="card-text">Escala: ${maqueta.escala}</p>
-                                <p class="card-text">Precio: $${maqueta.precio}</p>
-                                <div class="container d-flex justify-content-center">
-                                    <a  id="${IdBotonCarrito}" class="btn btn-primary">Agregar al carrito</a>
-                                    <a  id="${IdBotonFavorito}" class="btn btn-danger">Agregar a favoritos</a>
-                                </div>
-                            </div>
-                        </div>`
-    });
-}
-//
+//     maquetasFiltradas.forEach((maqueta) => {
+//         const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
+//         const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
+//         document.getElementById('seccion-catalogo').innerHTML +=
+//                         `<div class="card col -3" style="width: 22rem;">
+//                             <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
+//                             <div class="card-body">
+//                                 <h5 class="card-title">${maqueta.nombre}</h5>
+//                                 <p class="card-text">${maqueta.marca}</p>
+//                                 <p class="card-text">Escala: ${maqueta.escala}</p>
+//                                 <p class="card-text">Precio: $${maqueta.precio}</p>
+//                                 <div class="container d-flex justify-content-center">
+//                                     <a  id="${IdBotonCarrito}" class="btn btn-primary">Agregar al carrito</a>
+//                                     <a  id="${IdBotonFavorito}" class="btn btn-danger">Agregar a favoritos</a>
+//                                 </div>
+//                             </div>
+//                         </div>`
+//     });
+// }
+// //
