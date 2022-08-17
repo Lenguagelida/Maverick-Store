@@ -1,3 +1,10 @@
+let contadorCarrito = 0;
+let contadorFavoritos = 0;
+let carrito = JSON.parse(localStorage.getItem("carrito")) ?? [];
+cantidadPrecioNavbar();
+let favoritos = JSON.parse(localStorage.getItem("favoritos")) ?? [];
+contadorFavoritosNavbar();
+
 //Productos:
 const maquetas = [
 	{
@@ -34,10 +41,6 @@ const maquetas = [
 	},
 ];
 
-let contadorCarrito = 0;
-let contadorFavoritos = 0;
-let carrito = JSON.parse(localStorage.getItem("carrito")) ?? [];
-let favoritos = JSON.parse(localStorage.getItem("favoritos")) ?? [];
 
 const maquetaCard = (maqueta) => {
 	const card = `<div class="card col -3" style="width: 22rem;">
@@ -81,6 +84,8 @@ const seccionCatalogo = () => {
 	nodoCatalogo.innerHTML = catalogo;
 	btnAgregarCarrito();
 	btnAgregaFavoritos();
+    modalCarrito();
+    modalFavoritos();
 };
 
 const modalCarrito = () => {
@@ -94,7 +99,7 @@ const modalCarrito = () => {
 	nodoCarrito2.innerHTML = seccionCarrito; // Testeo
 	btnVaciarCarrito();
 	btnQuitarCarrito();
-	cantidadPrecioNavbar();
+	
 };
 
 const btnAgregarCarrito = () => {
@@ -124,7 +129,8 @@ const btnAgregarCarrito = () => {
 				},
 			}).showToast();
 			console.log(carrito);
-			modalCarrito();
+            modalCarrito();
+            cantidadPrecioNavbar();
 		});
 	});
 };
@@ -179,14 +185,13 @@ const btnVaciarCarrito = () => {
 		});
 	});
 };
-const cantidadPrecioNavbar = () => {
-	const totalPrecio = carrito.reduce(
-		(acumulador, maqueta) => acumulador + maqueta.precio,
-		0
-	);
-	document.getElementById("total-carrito").innerHTML =
-		carrito.length + "- Total: $" + totalPrecio;
+
+function cantidadPrecioNavbar(){
+	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
+	document.getElementById("total-carrito").innerHTML = carrito.length + "- Total: $" + totalPrecio;
 };
+
+
 
 //FUNCIONES PARA FAVORITOS:
 const verFavoritos = (maqueta) => {
@@ -214,7 +219,7 @@ const modalFavoritos = () => {
 	nodoFavoritos.innerHTML = seccionFavoritos;
 	nodoFavoritos2.innerHTML = seccionFavoritos; // Testeo
 	btnQuitarFavorito();
-	contadorFavoritosNavbar();
+
 };
 
 const btnAgregaFavoritos = () => {
@@ -234,7 +239,7 @@ const btnAgregaFavoritos = () => {
 			favoritos.push(maquetaEnFavoritos);
 			localStorage.setItem("favoritos", JSON.stringify(favoritos));
             Toastify({
-				text: "Agregaste a tus favoritos: "+ maqueta.favNombre,
+				text: "Agregaste a tus favoritos: "+ maqueta.nombre,
 				duration: 1000,
                 gravity: 'bottom',
                 position: 'right',
@@ -243,6 +248,7 @@ const btnAgregaFavoritos = () => {
 				},
 			}).showToast();
 			modalFavoritos();
+            contadorFavoritosNavbar();
 			console.log(favoritos);
 		});
 	});
@@ -270,11 +276,12 @@ const btnQuitarFavorito = () => {
 				},
 			}).showToast();
 			modalFavoritos();
+            contadorFavoritosNavbar();
 		});
 	});
 };
 
-const contadorFavoritosNavbar = () => {
+function contadorFavoritosNavbar(){
 	document.getElementById("contador-favoritos").innerHTML = favoritos.length;
 };
 
