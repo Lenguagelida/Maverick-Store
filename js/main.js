@@ -5,44 +5,7 @@ cantidadPrecioNavbar();
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) ?? [];
 contadorFavoritosNavbar();
 
-//Productos:
-const maquetas = [
-	{
-		id: 001,
-		nombre: "F-16F Fighting Falcon Block 60",
-		marca: "Hasegawa",
-		escala: "1/72",
-		precio: 15000,
-		image: "./assets/cards/f16d fighting falcon.jpg",
-	},
-	{
-		id: 002,
-		nombre: "F-18D Hornet Night Attack",
-		marca: "Hasegawa",
-		escala: "1/48",
-		precio: 19000,
-		image: "./assets/cards/f18d hornet night attack.jpg",
-	},
-	{
-		id: 003,
-		nombre: "F-14A Tomcat Atlantic Fleet Squadrons",
-		marca: "Hasegawa",
-		escala: "1/72",
-		precio: 20000,
-		image: "./assets/cards/f14a tomcat Atlantic fleet squadrons.jpg",
-	},
-	{
-		id: 004,
-		nombre: "Messerschmitt Me262A ISS1",
-		marca: "Hasegawa",
-		escala: "1/32",
-		precio: 23000,
-		image: "./assets/cards/me262a iss1.jpg",
-	},
-];
-
-
-const maquetaCard = (maqueta) => {
+function maquetaCard(maqueta) {
 	const card = `<div class="card col -3" style="width: 22rem;">
                     <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
                         <div class="card-body">
@@ -57,7 +20,7 @@ const maquetaCard = (maqueta) => {
                         </div>
                 </div>`;
 	return card;
-};
+}
 
 const verCarrito = (maqueta) => {
 	const filaCarrito = `<tr id="${maqueta.idFila}">
@@ -75,7 +38,20 @@ const verCarrito = (maqueta) => {
 	return filaCarrito;
 };
 
-const seccionCatalogo = () => {
+const verMarcas = (marca) =>{
+	const filaMarcas = `<li><a class="dropdown-item">${marca}</a></li>`
+	return filaMarcas;
+};
+
+const verEscalas = (escala) =>{
+	const filaEscala = `<li><a class="dropdown-item">${escala}</a></li>`
+	return filaEscala;
+};
+
+const seccionCatalogo = async() => {
+	const response = await fetch('/js/maquetas.json');
+	const maquetas = await response.json();
+
 	const nodoCatalogo = document.getElementById("seccion-catalogo");
 	let catalogo = "";
 	maquetas.forEach((maqueta) => {
@@ -90,19 +66,20 @@ const seccionCatalogo = () => {
 
 const modalCarrito = () => {
 	const nodoCarrito = document.getElementById("cards-carrito");
-	const nodoCarrito2 = document.getElementById("cards-carrito2"); //Testeo
 	let seccionCarrito = "";
 	carrito.forEach((maqueta) => {
 		seccionCarrito += verCarrito(maqueta);
 	});
 	nodoCarrito.innerHTML = seccionCarrito;
-	nodoCarrito2.innerHTML = seccionCarrito; // Testeo
 	btnVaciarCarrito();
 	btnQuitarCarrito();
 	
 };
 
-const btnAgregarCarrito = () => {
+const btnAgregarCarrito = async () => {
+	const response = await fetch('/js/maquetas.json');
+	const maquetas = await response.json();
+
 	maquetas.forEach((maqueta) => {
 		const idBotonCarrito = `agregar-carrito${maqueta.id}`;
 		const botonNodoAgregar = document.getElementById(idBotonCarrito);
@@ -157,6 +134,7 @@ const btnQuitarCarrito = () => {
 				},
 			}).showToast();
 			modalCarrito();
+			cantidadPrecioNavbar();
 		});
 	});
 };
@@ -180,6 +158,7 @@ const btnVaciarCarrito = () => {
 				carrito = [];
 				localStorage.setItem("carrito", JSON.stringify(carrito));
 				modalCarrito();
+				cantidadPrecioNavbar();
 				Swal.fire("Carrito vacio");
 			}
 		});
@@ -189,6 +168,45 @@ const btnVaciarCarrito = () => {
 function cantidadPrecioNavbar(){
 	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
 	document.getElementById("total-carrito").innerHTML = carrito.length + "- Total: $" + totalPrecio;
+};
+
+
+const dropdownMarcas = () => {
+	fetch('/js/maquetas.json')
+		.then((response) => response.json())
+		.then(maquetas => {
+			const marcasMaquetas = maquetas.map(({marca}) => marca);
+			const unicasMarcas = marcasMaquetas.filter((marca, indice, marcasMaquetas) =>{
+				return indice == marcasMaquetas.indexOf(marca)
+			});
+			// console.log(unicasMarcas);
+			unicasMarcas.sort();
+			const nodoDropdown = document.getElementById("marcasDropdown");
+			let filtroMarca = "";
+			unicasMarcas.forEach((marca) => {
+				filtroMarca += verMarcas(marca);
+				});
+			nodoDropdown.innerHTML = filtroMarca;
+	});
+};
+
+const dropdownEscalas = () => {
+	fetch('/js/maquetas.json')
+		.then((response) => response.json())
+		.then(maquetas => {
+			const escalasMaquetas = maquetas.map(({escala}) => escala);
+			const unicasEscalas = escalasMaquetas.filter((escala, indice, escalasMaquetas)=>{
+				return indice == escalasMaquetas.indexOf(escala);
+			});
+			// console.log(unicasEscalas);
+			unicasEscalas.sort();
+            const nodoDropdown = document.getElementById("escalaDropdown");
+            let filtroEscala = "";
+            unicasEscalas.forEach((escala) => {
+				filtroEscala += verEscalas(escala);
+			});
+			nodoDropdown.innerHTML = filtroEscala;
+		});
 };
 
 
@@ -211,18 +229,18 @@ const verFavoritos = (maqueta) => {
 
 const modalFavoritos = () => {
 	const nodoFavoritos = document.getElementById("cards-favoritos");
-	const nodoFavoritos2 = document.getElementById("cards-favoritos2"); //Testeo
 	let seccionFavoritos = "";
 	favoritos.forEach((maqueta) => {
 		seccionFavoritos += verFavoritos(maqueta);
 	});
 	nodoFavoritos.innerHTML = seccionFavoritos;
-	nodoFavoritos2.innerHTML = seccionFavoritos; // Testeo
 	btnQuitarFavorito();
-
 };
 
-const btnAgregaFavoritos = () => {
+const btnAgregaFavoritos = async () => {
+	const response = await fetch('/js/maquetas.json');
+	const maquetas = await response.json();
+
 	maquetas.forEach((maqueta) => {
 		const idAgregaFavorito = `agregar-favorito${maqueta.id}`;
 		const botonNodoFavoritos = document.getElementById(idAgregaFavorito);
@@ -267,7 +285,7 @@ const btnQuitarFavorito = () => {
 			favoritos.splice(indice, 1);
 			localStorage.setItem("favoritos", JSON.stringify(favoritos));
             Toastify({
-				text: "Eliminaste de favoritos: "+ maqueta.nombre,
+				text: "Eliminaste de favoritos: "+ maqueta.favNombre,
 				duration: 1000,
                 gravity: 'bottom',
                 position: 'right',
@@ -287,6 +305,8 @@ function contadorFavoritosNavbar(){
 
 //Inicializar la página:
 seccionCatalogo();
+dropdownMarcas();
+dropdownEscalas();
 //
 
 // //Filtar por escala:
