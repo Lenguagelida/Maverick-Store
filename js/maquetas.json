@@ -130,7 +130,7 @@
 	{
 		"id": 17,
 		"nombre": "Bristol Beaufighter TF.X",
-		"marca": "Revell",
+		"marca": "Airfix",
 		"escala": "1/72",
 		"precio": 18000,
 		"image": "./assets/cards/beaufighter.png"
@@ -138,7 +138,7 @@
 	{
 		"id": 18,
 		"nombre": "Avro Vulcan B.2",
-		"marca": "Arifix",
+		"marca": "Airfix",
 		"escala": "1/72",
 		"precio": 27000,
 		"image": "./assets/cards/avro vulcan.png"

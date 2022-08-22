@@ -39,12 +39,12 @@ const verCarrito = (maqueta) => {
 };
 
 const verMarcas = (marca) =>{
-	const filaMarcas = `<li><a class="dropdown-item">${marca}</a></li>`
+	const filaMarcas = `<li><a class="dropdown-item" onclick="btnFiltroMarca('${marca}')">${marca}</a></li>`
 	return filaMarcas;
 };
 
 const verEscalas = (escala) =>{
-	const filaEscala = `<li><a class="dropdown-item">${escala}</a></li>`
+	const filaEscala = `<li><a class="dropdown-item" onclick="btnFiltroEscala('${escala}')">${escala}</a></li>`
 	return filaEscala;
 };
 
@@ -58,6 +58,8 @@ const seccionCatalogo = async() => {
 		catalogo += maquetaCard(maqueta);
 	});
 	nodoCatalogo.innerHTML = catalogo;
+	dropdownMarcas();
+	dropdownEscalas();
 	btnAgregarCarrito();
 	btnAgregaFavoritos();
     modalCarrito();
@@ -71,12 +73,13 @@ const modalCarrito = () => {
 		seccionCarrito += verCarrito(maqueta);
 	});
 	nodoCarrito.innerHTML = seccionCarrito;
+	btnFinalizarCompra();
 	btnVaciarCarrito();
 	btnQuitarCarrito();
 	
 };
 
-const btnAgregarCarrito = async () => {
+const btnAgregarCarrito = async() => {
 	const response = await fetch('/js/maquetas.json');
 	const maquetas = await response.json();
 
@@ -145,7 +148,7 @@ const btnVaciarCarrito = () => {
 
 	botonNodoVaciar.addEventListener("click", () => {
 		Swal.fire({
-			title: "¿Estas seguro que deseas vaciar el carrito?",
+			title: "¿Estas seguro que deseas vaciar todo el carrito?",
 			text: "Los precios no se guardaran y podrian recibir cambios",
 			icon: "warning",
 			showCancelButton: true,
@@ -165,11 +168,30 @@ const btnVaciarCarrito = () => {
 	});
 };
 
+const btnFinalizarCompra = () => {
+	const idBotonFinalizar = `finalizar-compra`;
+	const botonNodoFinalizar = document.getElementById(idBotonFinalizar);
+
+	botonNodoFinalizar.addEventListener("click", () => {
+		Swal.fire({
+			title: 'Compra Exitosa!',
+			text: 'Gracias por confiar en nosotros',
+			imageUrl: 'https://c.tenor.com/JXXy9Twl-SkAAAAM/thumbs-up-maverick.gif',
+			imageWidth: 400,
+			imageHeight: 300,
+			imageAlt: 'Custom image',
+			});
+		carrito = [];
+		localStorage.setItem("carrito", JSON.stringify(carrito));
+		modalCarrito();
+		cantidadPrecioNavbar();
+	});
+};
+
 function cantidadPrecioNavbar(){
 	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
 	document.getElementById("total-carrito").innerHTML = carrito.length + "- Total: $" + totalPrecio;
 };
-
 
 const dropdownMarcas = () => {
 	fetch('/js/maquetas.json')
@@ -209,7 +231,39 @@ const dropdownEscalas = () => {
 		});
 };
 
+const btnFiltroMarca = (marca) =>{	
+	document.getElementById('seccion-catalogo').innerHTML= ""
 
+	fetch('/js/maquetas.json')
+		.then((response) => response.json())
+		.then(maquetas => {
+			const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
+			console.log(maquetasFitradas)
+			const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
+			let catalogoFiltrado = "";
+			maquetasFitradas.forEach((maqueta) => {
+				catalogoFiltrado += maquetaCard(maqueta);
+			});
+		nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
+		});
+};
+
+const btnFiltroEscala = (escala) =>{	
+	document.getElementById('seccion-catalogo').innerHTML= ""
+
+	fetch('/js/maquetas.json')
+		.then((response) => response.json())
+		.then(maquetas => {
+			const maquetasFitradas = maquetas.filter((maqueta) => maqueta.escala === escala);
+			console.log(maquetasFitradas)
+			const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
+			let catalogoFiltrado = "";
+			maquetasFitradas.forEach((maqueta) => {
+				catalogoFiltrado += maquetaCard(maqueta);
+			});
+		nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
+		});
+};
 
 //FUNCIONES PARA FAVORITOS:
 const verFavoritos = (maqueta) => {
@@ -305,32 +359,5 @@ function contadorFavoritosNavbar(){
 
 //Inicializar la página:
 seccionCatalogo();
-dropdownMarcas();
-dropdownEscalas();
+
 //
-
-// //Filtar por escala:
-// function filtrarPorEscala(escala) {
-//     document.getElementById('seccion-catalogo').innerHTML= "";
-//     const maquetasFiltradas = maquetas.filter((maqueta) => maqueta.escala == escala);
-
-//     maquetasFiltradas.forEach((maqueta) => {
-//         const IdBotonCarrito = `agregar-carrito${maqueta.id}`;
-//         const IdBotonFavorito = `agregar-favorito${maqueta.id}`;
-//         document.getElementById('seccion-catalogo').innerHTML +=
-//                         `<div class="card col -3" style="width: 22rem;">
-//                             <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
-//                             <div class="card-body">
-//                                 <h5 class="card-title">${maqueta.nombre}</h5>
-//                                 <p class="card-text">${maqueta.marca}</p>
-//                                 <p class="card-text">Escala: ${maqueta.escala}</p>
-//                                 <p class="card-text">Precio: $${maqueta.precio}</p>
-//                                 <div class="container d-flex justify-content-center">
-//                                     <a  id="${IdBotonCarrito}" class="btn btn-primary">Agregar al carrito</a>
-//                                     <a  id="${IdBotonFavorito}" class="btn btn-danger">Agregar a favoritos</a>
-//                                 </div>
-//                             </div>
-//                         </div>`
-//     });
-// }
-// //
