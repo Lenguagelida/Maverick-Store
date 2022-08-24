@@ -69,10 +69,15 @@ async function fetchCatalogo() {
     try{
         let response = await fetch('./js/maquetas.json');
         maquetas = await response.json();
+		// maquetas.sort((a,b) =>{
+		// 	if (a.nombre < b.nombre) return -1;
+		// 	if (a.nombre > b.nombre) return 1;
+		// 	return 0;
+		// });
         console.log(maquetas)
         seccionCatalogo()
     }catch (error) {
-        console.log(error);
+        console.log("error");
         }
 };
 fetchCatalogo();
