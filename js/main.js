@@ -4,6 +4,8 @@ let carrito = JSON.parse(localStorage.getItem("carrito")) ?? [];
 cantidadPrecioNavbar();
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) ?? [];
 contadorFavoritosNavbar();
+let maquetas = [];
+
 
 function maquetaCard(maqueta) {
 	const card = `<div class="card col -3" style="width: 22rem;">
@@ -48,10 +50,7 @@ const verEscalas = (escala) =>{
 	return filaEscala;
 };
 
-const seccionCatalogo = async() => {
-	const response = await fetch('/js/maquetas.json');
-	const maquetas = await response.json();
-
+const seccionCatalogo = () => {
 	const nodoCatalogo = document.getElementById("seccion-catalogo");
 	let catalogo = "";
 	maquetas.forEach((maqueta) => {
@@ -60,11 +59,23 @@ const seccionCatalogo = async() => {
 	nodoCatalogo.innerHTML = catalogo;
 	dropdownMarcas();
 	dropdownEscalas();
-	btnAgregarCarrito();
-	btnAgregaFavoritos();
+	btnAgregarCarrito(maquetas);
+	btnAgregaFavoritos(maquetas);
     modalCarrito();
     modalFavoritos();
 };
+
+async function fetchCatalogo() {
+    try{
+        let response = await fetch('./js/maquetas.json');
+        maquetas = await response.json();
+        console.log(maquetas)
+        seccionCatalogo()
+    }catch (error) {
+        console.log(error);
+        }
+};
+fetchCatalogo();
 
 const modalCarrito = () => {
 	const nodoCarrito = document.getElementById("cards-carrito");
@@ -79,33 +90,30 @@ const modalCarrito = () => {
 	
 };
 
-const btnAgregarCarrito = async() => {
-	const response = await fetch('/js/maquetas.json');
-	const maquetas = await response.json();
-
-	maquetas.forEach((maqueta) => {
-		const idBotonCarrito = `agregar-carrito${maqueta.id}`;
+const btnAgregarCarrito = (arrayCatalogo) => {	
+	arrayCatalogo.forEach((item) => {
+		const idBotonCarrito = `agregar-carrito${item.id}`;
 		const botonNodoAgregar = document.getElementById(idBotonCarrito);
 
 		botonNodoAgregar.addEventListener("click", () => {
 			const maquetaEnCarrito = {
-				id: maqueta.id,
-				nombre: maqueta.nombre,
-				img: maqueta.image,
+				id: item.id,
+				nombre: item.nombre,
+				img: item.image,
 				cantidad: 1,
-				precio: maqueta.precio,
+				precio: item.precio,
 				idFila: contadorCarrito,
 			};
 			contadorCarrito += 1;
 			carrito.push(maquetaEnCarrito);
 			localStorage.setItem("carrito", JSON.stringify(carrito));
             Toastify({
-				text: "Agregaste al carrito: "+ maqueta.nombre,
+				text: "Agregaste al carrito: "+ item.nombre,
 				duration: 1000,
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "radial-gradient(circle, rgba(151,151,156,1) 0%, rgba(105,105,107,1) 35%, rgba(56,58,59,1) 100%)",
+					background: "#212529",
 				},
 			}).showToast();
 			console.log(carrito);
@@ -133,7 +141,7 @@ const btnQuitarCarrito = () => {
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "radial-gradient(circle, rgba(151,151,156,1) 0%, rgba(105,105,107,1) 35%, rgba(56,58,59,1) 100%)",
+					background: "#212529",
 				},
 			}).showToast();
 			modalCarrito();
@@ -194,75 +202,65 @@ function cantidadPrecioNavbar(){
 };
 
 const dropdownMarcas = () => {
-	fetch('/js/maquetas.json')
-		.then((response) => response.json())
-		.then(maquetas => {
-			const marcasMaquetas = maquetas.map(({marca}) => marca);
-			const unicasMarcas = marcasMaquetas.filter((marca, indice, marcasMaquetas) =>{
-				return indice == marcasMaquetas.indexOf(marca)
-			});
-			// console.log(unicasMarcas);
-			unicasMarcas.sort();
-			const nodoDropdown = document.getElementById("marcasDropdown");
-			let filtroMarca = "";
-			unicasMarcas.forEach((marca) => {
-				filtroMarca += verMarcas(marca);
-				});
-			nodoDropdown.innerHTML = filtroMarca;
+	const marcasMaquetas = maquetas.map(({marca}) => marca);
+	const unicasMarcas = marcasMaquetas.filter((marca, indice, marcasMaquetas) =>{
+		return indice == marcasMaquetas.indexOf(marca)
 	});
+	// console.log(unicasMarcas);
+	unicasMarcas.sort();
+	const nodoDropdown = document.getElementById("marcasDropdown");
+	let filtroMarca = "";
+	unicasMarcas.forEach((marca) => {
+		filtroMarca += verMarcas(marca);
+		});
+	nodoDropdown.innerHTML = filtroMarca;
 };
 
 const dropdownEscalas = () => {
-	fetch('/js/maquetas.json')
-		.then((response) => response.json())
-		.then(maquetas => {
-			const escalasMaquetas = maquetas.map(({escala}) => escala);
-			const unicasEscalas = escalasMaquetas.filter((escala, indice, escalasMaquetas)=>{
-				return indice == escalasMaquetas.indexOf(escala);
-			});
-			// console.log(unicasEscalas);
-			unicasEscalas.sort();
-            const nodoDropdown = document.getElementById("escalaDropdown");
-            let filtroEscala = "";
-            unicasEscalas.forEach((escala) => {
-				filtroEscala += verEscalas(escala);
-			});
-			nodoDropdown.innerHTML = filtroEscala;
-		});
-};
+	const escalasMaquetas = maquetas.map(({escala}) => escala);
+	const unicasEscalas = escalasMaquetas.filter((escala, indice, escalasMaquetas)=>{
+		return indice == escalasMaquetas.indexOf(escala);
+	});
+	// console.log(unicasEscalas);
+	unicasEscalas.sort();
+    const nodoDropdown = document.getElementById("escalaDropdown");
+    let filtroEscala = "";
+    unicasEscalas.forEach((escala) => {
+		filtroEscala += verEscalas(escala);
+	});
+	nodoDropdown.innerHTML = filtroEscala;
+	// btnAgregarCarrito(maquetas);
+	// btnAgregaFavoritos();
+    // modalCarrito();
+    // modalFavoritos();
+}; 
 
 const btnFiltroMarca = (marca) =>{	
 	document.getElementById('seccion-catalogo').innerHTML= ""
-
-	fetch('/js/maquetas.json')
-		.then((response) => response.json())
-		.then(maquetas => {
-			const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
-			console.log(maquetasFitradas)
-			const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
-			let catalogoFiltrado = "";
-			maquetasFitradas.forEach((maqueta) => {
-				catalogoFiltrado += maquetaCard(maqueta);
-			});
-		nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
+		const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
+		console.log(maquetasFitradas)
+		const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
+		let catalogoFiltrado = "";
+		maquetasFitradas.forEach((maqueta) => {
+			catalogoFiltrado += maquetaCard(maqueta);
 		});
+	nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
+	btnAgregarCarrito(maquetasFitradas);
+	btnAgregaFavoritos(maquetasFitradas);
 };
 
 const btnFiltroEscala = (escala) =>{	
 	document.getElementById('seccion-catalogo').innerHTML= ""
-
-	fetch('/js/maquetas.json')
-		.then((response) => response.json())
-		.then(maquetas => {
-			const maquetasFitradas = maquetas.filter((maqueta) => maqueta.escala === escala);
-			console.log(maquetasFitradas)
-			const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
-			let catalogoFiltrado = "";
-			maquetasFitradas.forEach((maqueta) => {
-				catalogoFiltrado += maquetaCard(maqueta);
-			});
-		nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
-		});
+	const maquetasFitradas = maquetas.filter((maqueta) => maqueta.escala === escala);
+	console.log(maquetasFitradas);
+	const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
+	let catalogoFiltrado = "";
+	maquetasFitradas.forEach((maqueta) => {
+		catalogoFiltrado += maquetaCard(maqueta);
+	});
+	nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
+	btnAgregarCarrito(maquetasFitradas);
+	btnAgregaFavoritos(maquetasFitradas);
 };
 
 //FUNCIONES PARA FAVORITOS:
@@ -291,32 +289,29 @@ const modalFavoritos = () => {
 	btnQuitarFavorito();
 };
 
-const btnAgregaFavoritos = async () => {
-	const response = await fetch('/js/maquetas.json');
-	const maquetas = await response.json();
-
-	maquetas.forEach((maqueta) => {
-		const idAgregaFavorito = `agregar-favorito${maqueta.id}`;
+const btnAgregaFavoritos = (arrayCatalogo) => {
+	arrayCatalogo.forEach((item) => {
+		const idAgregaFavorito = `agregar-favorito${item.id}`;
 		const botonNodoFavoritos = document.getElementById(idAgregaFavorito);
 
 		botonNodoFavoritos.addEventListener("click", () => {
 			const maquetaEnFavoritos = {
-				favId: maqueta.id,
-				favNombre: maqueta.nombre,
-				favImg: maqueta.image,
-				favPrecio: maqueta.precio,
+				favId: item.id,
+				favNombre: item.nombre,
+				favImg: item.image,
+				favPrecio: item.precio,
 				favIdFila: contadorFavoritos,
 			};
 			contadorFavoritos += 1;
 			favoritos.push(maquetaEnFavoritos);
 			localStorage.setItem("favoritos", JSON.stringify(favoritos));
             Toastify({
-				text: "Agregaste a tus favoritos: "+ maqueta.nombre,
+				text: "Agregaste a tus favoritos: "+ item.nombre,
 				duration: 1000,
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "radial-gradient(circle, rgba(151,151,156,1) 0%, rgba(105,105,107,1) 35%, rgba(56,58,59,1) 100%)",
+					background: "#212529",
 				},
 			}).showToast();
 			modalFavoritos();
@@ -344,7 +339,7 @@ const btnQuitarFavorito = () => {
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "radial-gradient(circle, rgba(151,151,156,1) 0%, rgba(105,105,107,1) 35%, rgba(56,58,59,1) 100%)",
+					background: "#212529",
 				},
 			}).showToast();
 			modalFavoritos();
