@@ -85,11 +85,12 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="modal-footer">
+                                <div class="modal-footer d-flex justify-content-between">                                    
                                     <button id="vaciar-carrito" type="button" class="btn btn-danger">Eliminar
                                         todo</button>
                                     <button id="finalizar-compra" type="button" class="btn btn-success">Finalizar
                                         compra</button>
+                                    <p id="subtotal">Subtotal 0$</p>
                                 </div>
                             </div>
                         </div>
@@ -144,13 +145,35 @@
             <img src="assets/logo/maverick logo 5.png" alt="logo">
         </div>
     </header>
-
-    <section class="mt-2">
-        <div id="seccion-catalogo" class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center p-3">
-
+    <section class=" d-flex justify-content-around mx-3">
+        <div class="card mt-2">
+            <div class="card-body">
+                <div class="dropdown">
+                    <button class="btn btn-sm dropdown-toggle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Ordenar:
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><button class="dropdown-item" id="alfabetico">Alfabeticamente</button></li>
+                        <li><button class="dropdown-item" id="precio-ascendente">Precio Ascendente</button></li>
+                        <li><button class="dropdown-item" id="precio-descendente">Precio descendente</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-2">
+            <div class="card-body">
+                <button>Tema</button>
+            </div>
         </div>
     </section>
-    
+    <section class="catalogo">
+        <div class="container d-flex p-5">
+            <div id="seccion-catalogo" class="row row-cols-1 row-cols-md-3 g-4">
+                
+            </div>
+        </div>
+    </section>
+        
     <footer class="py-5 bg-dark">
         <div class="container">
             <p class="m-0 text-center text-white">Maverick Hobby Store - Simulador de E-commerce Javascript Vanilla</p>

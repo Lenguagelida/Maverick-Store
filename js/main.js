@@ -8,19 +8,22 @@ let maquetas = [];
 
 
 function maquetaCard(maqueta) {
-	const card = `<div class="card col -3" style="width: 22rem;">
-                    <img src="${maqueta.image}" class="card-img-top mt-1" alt="image${maqueta.id}">
-                        <div class="card-body">
-                            <h5 class="card-title">${maqueta.nombre}</h5>
-                            <p class="card-text">${maqueta.marca}</p>
-                            <p class="card-text">Escala: ${maqueta.escala}</p>
-                            <p class="card-text">Precio: $${maqueta.precio}</p>
-                            <div class="container d-flex justify-content-center">
-                                <a  id="agregar-carrito${maqueta.id}" class="btn btn-primary">Agregar al carrito</a>
-                                <a  id="agregar-favorito${maqueta.id}" class="btn btn-secondary">Agregar a favoritos</a>
-                            </div>
-                        </div>
-                </div>`;
+	const card = `<div class="col">           
+					<div class="card h-100">
+						<img src="${maqueta.image}" class="card-img-top" alt="image${maqueta.id}">
+						<div class="card-body">
+							<h4 class="card-title text-center">${maqueta.nombre}</h4>
+							<p class="card-text text-center">${maqueta.marca}</p>
+							<p class="card-text text-center">Escala: ${maqueta.escala}</p>
+							<p class="card-text text-center fw-bolder">Precio: $${maqueta.precio}</p>
+						</div>
+							<a  id="agregar-carrito${maqueta.id}" class="btn btn-outline-primary m-1 fw-bolder"><i class="bi-cart-fill me-1"></i> Añadir al carrito</a>
+							<a  id="agregar-favorito${maqueta.id}" class="btn btn-outline-secondary m-1 fw-bolder"><i class="bi bi-star-fill"></i> Agregar a favoritos</a>
+						<div class="card-footer">
+							<small class="text-success">Hay existencias</small>
+						</div>
+					</div>
+				</div>`
 	return card;
 }
 
@@ -69,13 +72,7 @@ async function fetchCatalogo() {
     try{
         let response = await fetch('./js/maquetas.json');
         maquetas = await response.json();
-		// maquetas.sort((a,b) =>{
-		// 	if (a.nombre < b.nombre) return -1;
-		// 	if (a.nombre > b.nombre) return 1;
-		// 	return 0;
-		// });
-        console.log(maquetas)
-        seccionCatalogo()
+        seccionCatalogo();
     }catch (error) {
         console.log("error");
         }
@@ -89,6 +86,7 @@ const modalCarrito = () => {
 		seccionCarrito += verCarrito(maqueta);
 	});
 	nodoCarrito.innerHTML = seccionCarrito;
+	precioTotalModal();
 	btnFinalizarCompra();
 	btnVaciarCarrito();
 	btnQuitarCarrito();
@@ -110,7 +108,20 @@ const btnAgregarCarrito = (arrayCatalogo) => {
 				idFila: contadorCarrito,
 			};
 			contadorCarrito += 1;
-			carrito.push(maquetaEnCarrito);
+
+			const existe = carrito.some(maq => maq.id == item.id);
+			console.log(existe);
+			if(existe){
+				carrito.map((itemCarrito) => {
+					if (itemCarrito.id === maquetaEnCarrito.id){
+						itemCarrito.cantidad ++;
+						itemCarrito.precio = maquetaEnCarrito.precio * itemCarrito.cantidad;
+					};
+				});
+			} else{
+				carrito.push(maquetaEnCarrito);
+			};
+
 			localStorage.setItem("carrito", JSON.stringify(carrito));
             Toastify({
 				text: "Agregaste al carrito: "+ item.nombre,
@@ -206,6 +217,11 @@ function cantidadPrecioNavbar(){
 	document.getElementById("total-carrito").innerHTML = carrito.length + "- Total: $" + totalPrecio;
 };
 
+const precioTotalModal = () => {
+	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
+	document.getElementById("subtotal").innerText = "Subtotal: $" + totalPrecio;
+};
+
 const dropdownMarcas = () => {
 	const marcasMaquetas = maquetas.map(({marca}) => marca);
 	const unicasMarcas = marcasMaquetas.filter((marca, indice, marcasMaquetas) =>{
@@ -234,17 +250,13 @@ const dropdownEscalas = () => {
 		filtroEscala += verEscalas(escala);
 	});
 	nodoDropdown.innerHTML = filtroEscala;
-	// btnAgregarCarrito(maquetas);
-	// btnAgregaFavoritos();
-    // modalCarrito();
-    // modalFavoritos();
 }; 
 
 const btnFiltroMarca = (marca) =>{	
 	document.getElementById('seccion-catalogo').innerHTML= ""
 		const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
-		console.log(maquetasFitradas)
 		const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
+		console.log(maquetasFitradas)
 		let catalogoFiltrado = "";
 		maquetasFitradas.forEach((maqueta) => {
 			catalogoFiltrado += maquetaCard(maqueta);
@@ -267,6 +279,44 @@ const btnFiltroEscala = (escala) =>{
 	btnAgregarCarrito(maquetasFitradas);
 	btnAgregaFavoritos(maquetasFitradas);
 };
+
+const ordenCatalogo = () =>{
+	const alfabetico = document.getElementById('alfabetico');
+	const precioAscendente = document.getElementById('precio-ascendente');
+	const precioDescendente = document.getElementById('precio-descendente');
+
+	alfabetico.addEventListener('click', () =>{
+		maquetas.sort((a,b) =>{
+			if (a.nombre < b.nombre) return -1;
+			if (a.nombre > b.nombre) return 1;
+			return 0;
+		});
+		console.log(maquetas);
+		seccionCatalogo();
+	});
+
+	precioAscendente.addEventListener('click', () =>{
+		maquetas.sort((a,b) =>{
+			if (a.precio < b.precio) return -1;
+			if (a.precio > b.precio) return 1;
+			return 0;
+		});
+		console.log(maquetas);
+		seccionCatalogo();
+	});
+
+	precioDescendente.addEventListener('click', () =>{
+		maquetas.sort((a,b) =>{
+			if (a.precio < b.precio) return 1;
+			if (a.precio > b.precio) return -1;
+			return 0;
+		});
+		console.log(maquetas);
+		seccionCatalogo();
+	});
+};
+
+ordenCatalogo(); // Solo anda con el array de maquetas!
 
 //FUNCIONES PARA FAVORITOS:
 const verFavoritos = (maqueta) => {
@@ -356,8 +406,3 @@ const btnQuitarFavorito = () => {
 function contadorFavoritosNavbar(){
 	document.getElementById("contador-favoritos").innerHTML = favoritos.length;
 };
-
-//Inicializar la página:
-seccionCatalogo();
-
-//
