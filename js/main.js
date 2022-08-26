@@ -53,17 +53,17 @@ const verEscalas = (escala) =>{
 	return filaEscala;
 };
 
-const seccionCatalogo = () => {
+const seccionCatalogo = (array) => {
 	const nodoCatalogo = document.getElementById("seccion-catalogo");
 	let catalogo = "";
-	maquetas.forEach((maqueta) => {
-		catalogo += maquetaCard(maqueta);
+	array.forEach((item) => {
+		catalogo += maquetaCard(item);
 	});
 	nodoCatalogo.innerHTML = catalogo;
 	dropdownMarcas();
 	dropdownEscalas();
-	btnAgregarCarrito(maquetas);
-	btnAgregaFavoritos(maquetas);
+	btnAgregarCarrito(array);
+	btnAgregaFavoritos(array);
     modalCarrito();
     modalFavoritos();
 };
@@ -72,7 +72,8 @@ async function fetchCatalogo() {
     try{
         let response = await fetch('./js/maquetas.json');
         maquetas = await response.json();
-        seccionCatalogo();
+		ordenCatalogo(maquetas);
+        seccionCatalogo(maquetas);
     }catch (error) {
         console.log("error");
         }
@@ -93,8 +94,8 @@ const modalCarrito = () => {
 	
 };
 
-const btnAgregarCarrito = (arrayCatalogo) => {	
-	arrayCatalogo.forEach((item) => {
+const btnAgregarCarrito = (array) => {	
+	array.forEach((item) => {
 		const idBotonCarrito = `agregar-carrito${item.id}`;
 		const botonNodoAgregar = document.getElementById(idBotonCarrito);
 
@@ -252,71 +253,55 @@ const dropdownEscalas = () => {
 	nodoDropdown.innerHTML = filtroEscala;
 }; 
 
-const btnFiltroMarca = (marca) =>{	
-	document.getElementById('seccion-catalogo').innerHTML= ""
+const btnFiltroMarca = (marca) =>{
 		const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
-		const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
-		console.log(maquetasFitradas)
-		let catalogoFiltrado = "";
-		maquetasFitradas.forEach((maqueta) => {
-			catalogoFiltrado += maquetaCard(maqueta);
-		});
-	nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
-	btnAgregarCarrito(maquetasFitradas);
-	btnAgregaFavoritos(maquetasFitradas);
+		console.log(maquetasFitradas);
+		ordenCatalogo(maquetasFitradas);
+		seccionCatalogo(maquetasFitradas);
 };
 
 const btnFiltroEscala = (escala) =>{	
-	document.getElementById('seccion-catalogo').innerHTML= ""
 	const maquetasFitradas = maquetas.filter((maqueta) => maqueta.escala === escala);
 	console.log(maquetasFitradas);
-	const nodoCatalogoFiltradas = document.getElementById("seccion-catalogo");
-	let catalogoFiltrado = "";
-	maquetasFitradas.forEach((maqueta) => {
-		catalogoFiltrado += maquetaCard(maqueta);
-	});
-	nodoCatalogoFiltradas.innerHTML = catalogoFiltrado;
-	btnAgregarCarrito(maquetasFitradas);
-	btnAgregaFavoritos(maquetasFitradas);
+	ordenCatalogo(maquetasFitradas);
+	seccionCatalogo(maquetasFitradas);
 };
 
-const ordenCatalogo = () =>{
+const ordenCatalogo = (array) =>{
 	const alfabetico = document.getElementById('alfabetico');
 	const precioAscendente = document.getElementById('precio-ascendente');
 	const precioDescendente = document.getElementById('precio-descendente');
 
 	alfabetico.addEventListener('click', () =>{
-		maquetas.sort((a,b) =>{
+		array.sort((a,b) =>{
 			if (a.nombre < b.nombre) return -1;
 			if (a.nombre > b.nombre) return 1;
 			return 0;
 		});
-		console.log(maquetas);
-		seccionCatalogo();
+		console.log(array);
+		seccionCatalogo(array);
 	});
 
 	precioAscendente.addEventListener('click', () =>{
-		maquetas.sort((a,b) =>{
+		array.sort((a,b) =>{
 			if (a.precio < b.precio) return -1;
 			if (a.precio > b.precio) return 1;
 			return 0;
 		});
-		console.log(maquetas);
-		seccionCatalogo();
+		console.log(array);
+		seccionCatalogo(array);
 	});
 
 	precioDescendente.addEventListener('click', () =>{
-		maquetas.sort((a,b) =>{
+		array.sort((a,b) =>{
 			if (a.precio < b.precio) return 1;
 			if (a.precio > b.precio) return -1;
 			return 0;
 		});
-		console.log(maquetas);
-		seccionCatalogo();
+		console.log(array);
+		seccionCatalogo(array);
 	});
 };
-
-ordenCatalogo(); // Solo anda con el array de maquetas!
 
 //FUNCIONES PARA FAVORITOS:
 const verFavoritos = (maqueta) => {
