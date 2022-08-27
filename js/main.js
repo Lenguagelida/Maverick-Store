@@ -110,6 +110,7 @@ const btnAgregarCarrito = (array) => {
 			};
 			contadorCarrito += 1;
 
+			//Verifica si existe en el carrito y actualiza la cantidad
 			const existe = carrito.some(maq => maq.id == item.id);
 			console.log(existe);
 			if(existe){
@@ -312,10 +313,11 @@ const verFavoritos = (maqueta) => {
                                     <img src="${maqueta.favImg}" style="width: 55px">
                                 </td>
                                 <td>$${maqueta.favPrecio}</td>
-                                <td>
-                                    <button id="eliminar-${maqueta.favIdFila}" class="btn btn-outline-danger">X</button>
-                            </td>
-                        </tr>`;
+                                <td class="d-flex">
+									<button id="eliminar-${maqueta.favIdFila}" class="btn btn-sm btn-outline-danger">X</button>
+									<button id="agregar-${maqueta.favId}" class="btn btn-sm btn-outline-primary"> carrito </button>
+								</td>
+							</tr>`;
 	return filaFavoritos;
 };
 
@@ -327,6 +329,7 @@ const modalFavoritos = () => {
 	});
 	nodoFavoritos.innerHTML = seccionFavoritos;
 	btnQuitarFavorito();
+	btnAgregarCarritoFavoritos();
 };
 
 const btnAgregaFavoritos = (arrayCatalogo) => {
@@ -361,11 +364,57 @@ const btnAgregaFavoritos = (arrayCatalogo) => {
 	});
 };
 
+const btnAgregarCarritoFavoritos = () =>{
+	favoritos.forEach((maqueta) => {
+		const idBotonAgregarCarrito = `agregar-${maqueta.favId}`;
+		const botonNodoAgregarCarrito = document.getElementById(idBotonAgregarCarrito);
+
+		botonNodoAgregarCarrito.addEventListener('click', () => {
+			const maquetaEnCarrito = {
+				id: maqueta.favId,
+				nombre: maqueta.favNombre,
+				img: maqueta.favImg,
+				cantidad: 1,
+				precio: maqueta.favPrecio,
+				idFila: contadorCarrito,
+			};
+			contadorCarrito += 1;
+
+			//Verifica si existe en el carrito y actualiza la cantidad
+			const existe = carrito.some(maq => maq.id == maqueta.favId);
+			console.log(existe);
+			if(existe){
+				carrito.map((itemCarrito) => {
+					if (itemCarrito.id === maquetaEnCarrito.id){
+						itemCarrito.cantidad ++;
+						itemCarrito.precio = maquetaEnCarrito.precio * itemCarrito.cantidad;
+					};
+				});
+			} else{
+				carrito.push(maquetaEnCarrito);
+			};
+
+			localStorage.setItem("carrito", JSON.stringify(carrito));
+            Toastify({
+				text: "Agregaste al carrito: "+ maqueta.favNombre,
+				duration: 1000,
+                gravity: 'bottom',
+                position: 'right',
+				style: {
+					background: "#212529",
+				},
+			}).showToast();
+			console.log(carrito);
+			modalCarrito();
+            cantidadPrecioNavbar();
+		});
+	});
+};
 const btnQuitarFavorito = () => {
 	favoritos.forEach((maqueta) => {
 		const idBotonQuitarFav = `eliminar-${maqueta.favIdFila}`;
 		const botonNodoQuitarFav = document.getElementById(idBotonQuitarFav);
-
+		
 		botonNodoQuitarFav.addEventListener("click", () => {
 			const indice = favoritos.findIndex(
 				(item) => item.favIdFila == maqueta.favIdFila
