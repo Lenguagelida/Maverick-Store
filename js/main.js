@@ -28,18 +28,20 @@ function maquetaCard(maqueta) {
 }
 
 const verCarrito = (maqueta) => {
-	const filaCarrito = `<tr id="${maqueta.idFila}">
-                            <td>${maqueta.id}</td>
-                                <td>${maqueta.nombre}</td>
-                                <td>
-                                    <img src="${maqueta.img}" style="width: 55px">
-                                </td>
-                                <td>${maqueta.cantidad}</td>
-                                <td>$${maqueta.precio}</td>
-                                <td>
-                                    <button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger">X</button>
-                            </td>
-                        </tr>`;
+	const filaCarrito = `
+	<tbody>
+		<tr id="${maqueta.idFila}">
+            <td>${maqueta.id}</td>
+            <td>
+                <img src="${maqueta.img}" style="width: 55px">
+            </td>
+            <td>${maqueta.cantidad}</td>
+            <td id="maqueta-precio${maqueta.idFila}">$${maqueta.precio}</td>
+            <td>
+				<button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger">X</button>
+            </td>
+        </tr>
+	</tbody>`;
 	return filaCarrito;
 };
 
@@ -91,14 +93,13 @@ const modalCarrito = () => {
 	btnFinalizarCompra();
 	btnVaciarCarrito();
 	btnQuitarCarrito();
-	
 };
 
 const btnAgregarCarrito = (array) => {	
 	array.forEach((item) => {
 		const idBotonCarrito = `agregar-carrito${item.id}`;
 		const botonNodoAgregar = document.getElementById(idBotonCarrito);
-
+		
 		botonNodoAgregar.addEventListener("click", () => {
 			const maquetaEnCarrito = {
 				id: item.id,
@@ -131,10 +132,10 @@ const btnAgregarCarrito = (array) => {
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "#212529",
+					background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(33,37,41,1) 19%, rgba(33,37,41,1) 86%)",
 				},
 			}).showToast();
-			console.log(carrito);
+			// console.log(carrito);
             modalCarrito();
             cantidadPrecioNavbar();
 		});
@@ -159,7 +160,7 @@ const btnQuitarCarrito = () => {
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "#212529",
+					background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(33,37,41,1) 19%, rgba(33,37,41,1) 86%)",
 				},
 			}).showToast();
 			modalCarrito();
@@ -178,10 +179,10 @@ const btnVaciarCarrito = () => {
 			text: "Los precios no se guardaran y podrian recibir cambios",
 			icon: "warning",
 			showCancelButton: true,
-			cancelButtonText: "Cerrar",
+			cancelButtonText: "No",
 			confirmButtonColor: "#3085d6",
 			cancelButtonColor: "#d33",
-			confirmButtonText: "SI",
+			confirmButtonText: "SI"      
 		}).then((result) => {
 			if (result.isConfirmed) {
 				carrito = [];
@@ -214,15 +215,17 @@ const btnFinalizarCompra = () => {
 	});
 };
 
-function cantidadPrecioNavbar(){
-	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
-	document.getElementById("total-carrito").innerHTML = carrito.length + "- Total: $" + totalPrecio;
-};
-
 const precioTotalModal = () => {
 	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
 	document.getElementById("subtotal").innerText = "Subtotal: $" + totalPrecio;
 };
+
+function cantidadPrecioNavbar(){
+	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
+	const totalCantidad = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.cantidad, 0);
+	document.getElementById("total-carrito").innerHTML = totalCantidad + "- Total: $" + totalPrecio;
+};
+
 
 const dropdownMarcas = () => {
 	const marcasMaquetas = maquetas.map(({marca}) => marca);
@@ -279,7 +282,7 @@ const ordenCatalogo = (array) =>{
 			if (a.nombre > b.nombre) return 1;
 			return 0;
 		});
-		console.log(array);
+		// console.log(array);
 		seccionCatalogo(array);
 	});
 
@@ -289,7 +292,7 @@ const ordenCatalogo = (array) =>{
 			if (a.precio > b.precio) return 1;
 			return 0;
 		});
-		console.log(array);
+		// console.log(array);
 		seccionCatalogo(array);
 	});
 
@@ -299,7 +302,7 @@ const ordenCatalogo = (array) =>{
 			if (a.precio > b.precio) return -1;
 			return 0;
 		});
-		console.log(array);
+		// console.log(array);
 		seccionCatalogo(array);
 	});
 };
@@ -308,13 +311,15 @@ const ordenCatalogo = (array) =>{
 const verFavoritos = (maqueta) => {
 	const filaFavoritos = `<tr id="${maqueta.favIdFila}">
                                 <td>${maqueta.favId}</td>
-                                <td>${maqueta.favNombre}</td>
+                                <td class="inline-block text-truncate" style="max-width: 40px;">${maqueta.favNombre}</td>
                                 <td>
                                     <img src="${maqueta.favImg}" style="width: 55px">
                                 </td>
                                 <td>$${maqueta.favPrecio}</td>
-                                <td class="d-flex">
+                                <td>
 									<button id="eliminar-${maqueta.favIdFila}" class="btn btn-sm btn-outline-danger">X</button>
+								</td>
+								<td>
 									<button id="agregar-${maqueta.favId}" class="btn btn-sm btn-outline-primary"> carrito </button>
 								</td>
 							</tr>`;
@@ -330,7 +335,8 @@ const modalFavoritos = () => {
 	nodoFavoritos.innerHTML = seccionFavoritos;
 	btnQuitarFavorito();
 	btnAgregarCarritoFavoritos();
-};
+	};
+
 
 const btnAgregaFavoritos = (arrayCatalogo) => {
 	arrayCatalogo.forEach((item) => {
@@ -345,21 +351,38 @@ const btnAgregaFavoritos = (arrayCatalogo) => {
 				favPrecio: item.precio,
 				favIdFila: contadorFavoritos,
 			};
-			contadorFavoritos += 1;
-			favoritos.push(maquetaEnFavoritos);
-			localStorage.setItem("favoritos", JSON.stringify(favoritos));
+			
+			//Verifica si existe en favoritos
+			const existe = favoritos.some(maq => maq.favId == maquetaEnFavoritos.favId);
+			console.log(existe);
+			if(existe){
+				Toastify({
+					text: "Ya agregaste a tus favoritos: "+ maquetaEnFavoritos.favNombre,
+					duration: 1000,
+					gravity: 'bottom',
+					position: 'right',
+					style: {
+						background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(177,10,10,1) 13%, rgba(33,37,41,1) 85%)",
+					},
+				}).showToast();
+			} else{
+				contadorFavoritos += 1;
+				favoritos.push(maquetaEnFavoritos)
+				localStorage.setItem("favoritos", JSON.stringify(favoritos));
             Toastify({
 				text: "Agregaste a tus favoritos: "+ item.nombre,
 				duration: 1000,
                 gravity: 'bottom',
                 position: 'right',
 				style: {
-					background: "#212529",
+					background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(33,37,41,1) 19%, rgba(33,37,41,1) 86%)",
 				},
 			}).showToast();
+			};
+
 			modalFavoritos();
             contadorFavoritosNavbar();
-			console.log(favoritos);
+			// console.log(favoritos);
 		});
 	});
 };

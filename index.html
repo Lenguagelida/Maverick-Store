@@ -64,24 +64,23 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Carrito</h5>
+                                    <h5 class="modal-title text-bold" id="exampleModalLabel">Carrito</h5>
                                     <button type="button" class="btn-close" id="cierraModalCart" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <table class="table table-striped">
                                         <thead>
-                                            <tr>
-                                                <th>Código</th>
-                                                <th>Nombre</th>
-                                                <th>Imágen</th>
+                                            <tr id="modal-carrito">
+                                                <th>#</th>
+                                                <th>Producto</th>
                                                 <th>Cantidad</th>
                                                 <th>Precio</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody id="cards-carrito">
-
+                                            
                                         </tbody>
                                     </table>
                                 </div>
@@ -90,7 +89,7 @@
                                         todo</button>
                                     <button id="finalizar-compra" type="button" class="btn btn-success">Finalizar
                                         compra</button>
-                                    <p id="subtotal">Subtotal 0$</p>
+                                    <p class="fw-bolder" id="subtotal">Subtotal 0$</p>
                                 </div>
                             </div>
                         </div>
@@ -111,13 +110,13 @@
                                     <button type="button" class="btn-close" id="cierraModalFav" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="modal-body">
+                                <div id="modal-favoritos-body" class="modal-body">
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>Código</th>
-                                                <th>Nombre</th>
-                                                <th>Imágen</th>
+                                                <th>#</th>
+                                                <th>Producto</th>
+                                                <th></th>
                                                 <th>Precio</th>
                                                 <th></th>
                                                 <th></th>
@@ -145,7 +144,7 @@
             <img src="assets/logo/maverick logo 5.png" alt="logo">
         </div>
     </header>
-    <section class=" d-flex justify-content-around mx-3">
+    <section class=" d-flex justify-content-center">
         <div class="card mt-2">
             <div class="card-body">
                 <div class="dropdown">
@@ -160,14 +159,9 @@
                 </div>
             </div>
         </div>
-        <div class="card mt-2">
-            <div class="card-body">
-                <button>Tema</button>
-            </div>
-        </div>
     </section>
     <section class="catalogo">
-        <div class="container d-flex p-5">
+        <div class="container d-flex p-3">
             <div id="seccion-catalogo" class="row row-cols-1 row-cols-md-3 g-4">
                 
             </div>
