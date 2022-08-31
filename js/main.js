@@ -1,7 +1,7 @@
 let contadorCarrito = 0;
 let contadorFavoritos = 0;
 let carrito = JSON.parse(localStorage.getItem("carrito")) ?? [];
-
+cantidadPrecioNavbar();
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) ?? [];
 contadorFavoritosNavbar();
 let maquetas = [];
@@ -77,7 +77,6 @@ async function fetchCatalogo() {
         maquetas = await response.json();
 		ordenCatalogo(maquetas);
         seccionCatalogo(maquetas);
-		cantidadPrecioNavbar();
     }catch (error) {
         console.log("error");
         }
@@ -92,7 +91,7 @@ const modalCarrito = () => {
 	});
 	nodoCarrito.innerHTML = seccionCarrito;
 	precioTotalModal();
-	btnSumarCantidad();
+	// btnSumarCantidad();
 	btnFinalizarCompra();
 	btnVaciarCarrito();
 	btnQuitarCarrito();
