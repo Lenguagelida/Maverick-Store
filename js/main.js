@@ -1,7 +1,7 @@
 let contadorCarrito = 0;
 let contadorFavoritos = 0;
 let carrito = JSON.parse(localStorage.getItem("carrito")) ?? [];
-cantidadPrecioNavbar();
+
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) ?? [];
 contadorFavoritosNavbar();
 let maquetas = [];
@@ -35,10 +35,11 @@ const verCarrito = (maqueta) => {
             <td>
                 <img src="${maqueta.img}" style="width: 55px">
             </td>
-            <td>${maqueta.cantidad}</td>
-            <td id="maqueta-precio${maqueta.idFila}">$${maqueta.precio}</td>
+			<td><button id="restar-${maqueta.id}" class="btn btn-outline-dark btn-sm">-</button> <button id="sumar-${maqueta.id}" class="btn btn-outline-dark btn-sm">+</button></td>
+            <td id="maqueta-cantidad${maqueta.id}">${maqueta.cantidad}</td>
+            <td id="maqueta-precio${maqueta.id}">$${maqueta.precio}</td>
             <td>
-				<button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger">X</button>
+				<button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger btn-sm">X</button>
             </td>
         </tr>
 	</tbody>`;
@@ -76,6 +77,7 @@ async function fetchCatalogo() {
         maquetas = await response.json();
 		ordenCatalogo(maquetas);
         seccionCatalogo(maquetas);
+		cantidadPrecioNavbar();
     }catch (error) {
         console.log("error");
         }
@@ -90,6 +92,7 @@ const modalCarrito = () => {
 	});
 	nodoCarrito.innerHTML = seccionCarrito;
 	precioTotalModal();
+	btnSumarCantidad();
 	btnFinalizarCompra();
 	btnVaciarCarrito();
 	btnQuitarCarrito();
@@ -135,7 +138,8 @@ const btnAgregarCarrito = (array) => {
 					background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(33,37,41,1) 19%, rgba(33,37,41,1) 86%)",
 				},
 			}).showToast();
-			// console.log(carrito);
+			console.log("El carrito:")
+			console.log(carrito[0]);
             modalCarrito();
             cantidadPrecioNavbar();
 		});
@@ -307,6 +311,29 @@ const ordenCatalogo = (array) =>{
 	});
 };
 
+const btnSumarCantidad = () => {
+	carrito.forEach((maqueta) => {
+		const idBtnSumar = `sumar-${maqueta.id}`;
+		const nodoBtnSumar = document.getElementById(idBtnSumar);
+		const idCantidadMaqueta =`maqueta-cantidad${maqueta.id}`
+		const nodoCantidadMaqueta = document.getElementById(idCantidadMaqueta);
+		// const unidadPrecio = maqueta.precio;
+		console.log(unidadPrecio);
+			nodoBtnSumar.addEventListener('click', () => {
+			let pocision = maqueta.idFila;
+			const producto = carrito.find(item => item.idFila === pocision);
+			console.log(unidadPrecio);
+			producto.cantidad += 1;
+			producto.precio += unidadPrecio;
+			nodoCantidadMaqueta.textContent = producto.cantidad;
+			document.getElementById(`maqueta-precio${maqueta.id}`).textContent = "$"+producto.precio;
+			precioTotalModal();
+			console.log(producto);
+		});
+	});
+};
+
+
 //FUNCIONES PARA FAVORITOS:
 const verFavoritos = (maqueta) => {
 	const filaFavoritos = `<tr id="${maqueta.favIdFila}">
@@ -433,6 +460,7 @@ const btnAgregarCarritoFavoritos = () =>{
 		});
 	});
 };
+
 const btnQuitarFavorito = () => {
 	favoritos.forEach((maqueta) => {
 		const idBotonQuitarFav = `eliminar-${maqueta.favIdFila}`;
@@ -463,3 +491,4 @@ const btnQuitarFavorito = () => {
 function contadorFavoritosNavbar(){
 	document.getElementById("contador-favoritos").innerHTML = favoritos.length;
 };
+
