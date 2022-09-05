@@ -7,8 +7,9 @@ contadorFavoritosNavbar();
 let maquetas = [];
 
 
-function maquetaCard(maqueta) {
-	const card = `<div class="col">           
+//--ESQUEMA DE LOS ELEMENTOS A MOSTRAR EN LA PAGINA--
+const maquetaCard = (maqueta) => {
+	const card = `<div class="col">
 					<div class="card h-100">
 						<img src="${maqueta.image}" class="card-img-top" alt="image${maqueta.id}">
 						<div class="card-body">
@@ -25,7 +26,7 @@ function maquetaCard(maqueta) {
 					</div>
 				</div>`
 	return card;
-}
+};
 
 const verCarrito = (maqueta) => {
 	const filaCarrito = `
@@ -35,10 +36,10 @@ const verCarrito = (maqueta) => {
             <td>
                 <img src="${maqueta.img}" style="width: 55px">
             </td>
-            <td>${maqueta.cantidad}</td>
-            <td id="maqueta-precio${maqueta.idFila}">$${maqueta.precio}</td>
+			<td><input type="number" id="maqueta-cantidad${maqueta.id}" min="1" value="${maqueta.cantidad}"></td>
+            <td id="maqueta-precio${maqueta.id}">$${maqueta.precio}</td>
             <td>
-				<button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger">X</button>
+				<button id="eliminar${maqueta.idFila}" class="btn btn-outline-danger btn-sm">X</button>
             </td>
         </tr>
 	</tbody>`;
@@ -54,7 +55,9 @@ const verEscalas = (escala) =>{
 	const filaEscala = `<li><a class="dropdown-item" onclick="btnFiltroEscala('${escala}')">${escala}</a></li>`
 	return filaEscala;
 };
+//-----
 
+// --FUNCIONES QUE IMPRIMEN LOS ELEMENTOS EN LA PAGINA--
 const seccionCatalogo = (array) => {
 	const nodoCatalogo = document.getElementById("seccion-catalogo");
 	let catalogo = "";
@@ -69,18 +72,19 @@ const seccionCatalogo = (array) => {
     modalCarrito();
     modalFavoritos();
 };
-
-async function fetchCatalogo() {
-    try{
-        let response = await fetch('./js/maquetas.json');
-        maquetas = await response.json();
-		ordenCatalogo(maquetas);
-        seccionCatalogo(maquetas);
-    }catch (error) {
-        console.log("error");
-        }
-};
-fetchCatalogo();
+	// --LLAMAR AL ARCHIVO JSON--
+	async function fetchCatalogo() {
+		try{
+			let response = await fetch('./js/maquetas.json');
+			maquetas = await response.json();
+			ordenCatalogo(maquetas);
+			seccionCatalogo(maquetas);
+		}catch (error) {
+			console.log("error");
+		}
+	};
+	fetchCatalogo(); 
+	//-----
 
 const modalCarrito = () => {
 	const nodoCarrito = document.getElementById("cards-carrito");
@@ -90,16 +94,19 @@ const modalCarrito = () => {
 	});
 	nodoCarrito.innerHTML = seccionCarrito;
 	precioTotalModal();
+	btnSumarCantidad();
 	btnFinalizarCompra();
 	btnVaciarCarrito();
 	btnQuitarCarrito();
 };
+//-----
 
-const btnAgregarCarrito = (array) => {	
+//--FUNCIONES DE LOS DISTINTOS BOTONES PARA CARRITO--
+const btnAgregarCarrito = (array) => {
 	array.forEach((item) => {
 		const idBotonCarrito = `agregar-carrito${item.id}`;
 		const botonNodoAgregar = document.getElementById(idBotonCarrito);
-		
+
 		botonNodoAgregar.addEventListener("click", () => {
 			const maquetaEnCarrito = {
 				id: item.id,
@@ -111,31 +118,32 @@ const btnAgregarCarrito = (array) => {
 			};
 			contadorCarrito += 1;
 
-			//Verifica si existe en el carrito y actualiza la cantidad
+			//Verifica si existe en el carrito
 			const existe = carrito.some(maq => maq.id == item.id);
 			console.log(existe);
 			if(existe){
-				carrito.map((itemCarrito) => {
-					if (itemCarrito.id === maquetaEnCarrito.id){
-						itemCarrito.cantidad ++;
-						itemCarrito.precio = maquetaEnCarrito.precio * itemCarrito.cantidad;
-					};
-				});
+					Toastify({
+						text: "Este producto ya esta en tu carrito",
+						duration: 1500,
+						gravity: 'bottom',
+						position: 'right',
+						style: {
+							background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(177,10,10,1) 13%, rgba(33,37,41,1) 85%)",
+						},
+					}).showToast();
 			} else{
-				carrito.push(maquetaEnCarrito);
+				carrito.push(maquetaEnCarrito); //Si no existe agrega al carrito
+				localStorage.setItem("carrito", JSON.stringify(carrito));
+				Toastify({
+					text: "Agregaste al carrito: "+ item.nombre,
+					duration: 1500,
+					gravity: 'bottom',
+					position: 'right',
+					style: {
+						background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(33,37,41,1) 19%, rgba(33,37,41,1) 86%)",
+					},
+				}).showToast();
 			};
-
-			localStorage.setItem("carrito", JSON.stringify(carrito));
-            Toastify({
-				text: "Agregaste al carrito: "+ item.nombre,
-				duration: 1000,
-                gravity: 'bottom',
-                position: 'right',
-				style: {
-					background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(33,37,41,1) 19%, rgba(33,37,41,1) 86%)",
-				},
-			}).showToast();
-			// console.log(carrito);
             modalCarrito();
             cantidadPrecioNavbar();
 		});
@@ -182,10 +190,10 @@ const btnVaciarCarrito = () => {
 			cancelButtonText: "No",
 			confirmButtonColor: "#3085d6",
 			cancelButtonColor: "#d33",
-			confirmButtonText: "SI"      
+			confirmButtonText: "SI"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				carrito = [];
+				carrito = []; //Vacia el carrito
 				localStorage.setItem("carrito", JSON.stringify(carrito));
 				modalCarrito();
 				cantidadPrecioNavbar();
@@ -208,13 +216,36 @@ const btnFinalizarCompra = () => {
 			imageHeight: 300,
 			imageAlt: 'Custom image',
 			});
-		carrito = [];
+		carrito = []; //Vacia el carrito al finalizar la compra
 		localStorage.setItem("carrito", JSON.stringify(carrito));
 		modalCarrito();
 		cantidadPrecioNavbar();
 	});
 };
 
+const btnSumarCantidad = () => {
+	carrito.forEach((maqueta)=>{
+		const idInputCantidad = `maqueta-cantidad${maqueta.id}`
+		const idPrecioUnidad =`maqueta-precio${maqueta.id}`
+		const nodoPrecioUnidad = document.getElementById(idPrecioUnidad);
+		const nodoInput = document.getElementById(idInputCantidad);
+		nodoInput.addEventListener('change', (e) => {
+			let cantidad = Number(e.target.value);
+			let indice = maqueta.id -1;
+			let precioOriginal = maquetas[indice].precio;//Busca el precio en el JSON del producto correspondiente
+			let total = cantidad * precioOriginal;
+			maqueta.cantidad = cantidad;
+			maqueta.precio = total;
+			nodoPrecioUnidad.textContent = "$"+ total;
+			localStorage.setItem("carrito", JSON.stringify(carrito));
+			precioTotalModal();
+			cantidadPrecioNavbar();
+		});
+	});
+};
+//-----
+
+//--CONTADORES PARA LA PAGINA Y EL MODAL DEL CARRITO--
 const precioTotalModal = () => {
 	const totalPrecio = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.precio, 0);
 	document.getElementById("subtotal").innerText = "Subtotal: $" + totalPrecio;
@@ -225,8 +256,9 @@ function cantidadPrecioNavbar(){
 	const totalCantidad = carrito.reduce((acumulador, maqueta) => acumulador + maqueta.cantidad, 0);
 	document.getElementById("total-carrito").innerHTML = totalCantidad + "- Total: $" + totalPrecio;
 };
+//-----
 
-
+//--FILTROS DE LOS PRODUCTOS--
 const dropdownMarcas = () => {
 	const marcasMaquetas = maquetas.map(({marca}) => marca);
 	const unicasMarcas = marcasMaquetas.filter((marca, indice, marcasMaquetas) =>{
@@ -255,18 +287,18 @@ const dropdownEscalas = () => {
 		filtroEscala += verEscalas(escala);
 	});
 	nodoDropdown.innerHTML = filtroEscala;
-}; 
-
-const btnFiltroMarca = (marca) =>{
-		const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
-		console.log(maquetasFitradas);
-		ordenCatalogo(maquetasFitradas);
-		seccionCatalogo(maquetasFitradas);
 };
 
-const btnFiltroEscala = (escala) =>{	
+const btnFiltroMarca = (marca) =>{
+	const maquetasFitradas = maquetas.filter((maqueta) => maqueta.marca === marca);
+	// console.log(maquetasFitradas);
+	ordenCatalogo(maquetasFitradas);
+	seccionCatalogo(maquetasFitradas);
+};
+
+const btnFiltroEscala = (escala) =>{
 	const maquetasFitradas = maquetas.filter((maqueta) => maqueta.escala === escala);
-	console.log(maquetasFitradas);
+	// console.log(maquetasFitradas);
 	ordenCatalogo(maquetasFitradas);
 	seccionCatalogo(maquetasFitradas);
 };
@@ -306,8 +338,11 @@ const ordenCatalogo = (array) =>{
 		seccionCatalogo(array);
 	});
 };
+//-----
 
-//FUNCIONES PARA FAVORITOS:
+// CODIGO PARA LA FUNCIONALIDAD DE FAVORITOS
+
+//--ESQUEMA DEL MODAL DE FAVORITOS--
 const verFavoritos = (maqueta) => {
 	const filaFavoritos = `<tr id="${maqueta.favIdFila}">
                                 <td>${maqueta.favId}</td>
@@ -325,7 +360,9 @@ const verFavoritos = (maqueta) => {
 							</tr>`;
 	return filaFavoritos;
 };
+//-----
 
+// --FUNCIONES QUE IMPRIMEN LOS ELEMENTOS EN LA PAGINA--
 const modalFavoritos = () => {
 	const nodoFavoritos = document.getElementById("cards-favoritos");
 	let seccionFavoritos = "";
@@ -336,8 +373,9 @@ const modalFavoritos = () => {
 	btnQuitarFavorito();
 	btnAgregarCarritoFavoritos();
 	};
+//-----
 
-
+//-- FUNCIONES DE LOS BOTONES DEL MODAL DE FAVORITOS --
 const btnAgregaFavoritos = (arrayCatalogo) => {
 	arrayCatalogo.forEach((item) => {
 		const idAgregaFavorito = `agregar-favorito${item.id}`;
@@ -351,14 +389,13 @@ const btnAgregaFavoritos = (arrayCatalogo) => {
 				favPrecio: item.precio,
 				favIdFila: contadorFavoritos,
 			};
-			
+
 			//Verifica si existe en favoritos
 			const existe = favoritos.some(maq => maq.favId == maquetaEnFavoritos.favId);
-			console.log(existe);
 			if(existe){
 				Toastify({
-					text: "Ya agregaste a tus favoritos: "+ maquetaEnFavoritos.favNombre,
-					duration: 1000,
+					text: "Este producto ya esta en tu lista de favoritos",
+					duration: 1500,
 					gravity: 'bottom',
 					position: 'right',
 					style: {
@@ -367,11 +404,11 @@ const btnAgregaFavoritos = (arrayCatalogo) => {
 				}).showToast();
 			} else{
 				contadorFavoritos += 1;
-				favoritos.push(maquetaEnFavoritos)
+				favoritos.push(maquetaEnFavoritos)//Si no existe en favoritos agrega el producto a la lista
 				localStorage.setItem("favoritos", JSON.stringify(favoritos));
             Toastify({
 				text: "Agregaste a tus favoritos: "+ item.nombre,
-				duration: 1000,
+				duration: 1500,
                 gravity: 'bottom',
                 position: 'right',
 				style: {
@@ -403,47 +440,50 @@ const btnAgregarCarritoFavoritos = () =>{
 			};
 			contadorCarrito += 1;
 
-			//Verifica si existe en el carrito y actualiza la cantidad
+			//Verifica si existe en el carrito
 			const existe = carrito.some(maq => maq.id == maqueta.favId);
 			console.log(existe);
 			if(existe){
-				carrito.map((itemCarrito) => {
-					if (itemCarrito.id === maquetaEnCarrito.id){
-						itemCarrito.cantidad ++;
-						itemCarrito.precio = maquetaEnCarrito.precio * itemCarrito.cantidad;
-					};
-				});
+				Toastify({
+					text: "Este producto ya esta en tu carrito",
+					duration: 1500,
+					gravity: 'bottom',
+					position: 'right',
+					style: {
+						background: "linear-gradient(90deg, rgba(151,151,156,1) 0%, rgba(177,10,10,1) 13%, rgba(33,37,41,1) 85%)",
+					},
+				}).showToast();
 			} else{
-				carrito.push(maquetaEnCarrito);
-			};
-
-			localStorage.setItem("carrito", JSON.stringify(carrito));
-            Toastify({
-				text: "Agregaste al carrito: "+ maqueta.favNombre,
-				duration: 1000,
-                gravity: 'bottom',
-                position: 'right',
-				style: {
-					background: "#212529",
-				},
-			}).showToast();
-			console.log(carrito);
+				carrito.push(maquetaEnCarrito); //Agrega el item al carrito
+				localStorage.setItem("carrito", JSON.stringify(carrito));
+				Toastify({
+					text: "Agregaste al carrito: "+ maqueta.favNombre,
+					duration: 1000,
+					gravity: 'bottom',
+					position: 'right',
+					style: {
+						background: "#212529",
+					},
+				}).showToast();
+			};			
+			// console.log(carrito);
 			modalCarrito();
             cantidadPrecioNavbar();
 		});
 	});
 };
+
 const btnQuitarFavorito = () => {
 	favoritos.forEach((maqueta) => {
 		const idBotonQuitarFav = `eliminar-${maqueta.favIdFila}`;
 		const botonNodoQuitarFav = document.getElementById(idBotonQuitarFav);
-		
+
 		botonNodoQuitarFav.addEventListener("click", () => {
 			const indice = favoritos.findIndex(
 				(item) => item.favIdFila == maqueta.favIdFila
 			);
-			console.log(indice);
-			favoritos.splice(indice, 1);
+			// console.log(indice);
+			favoritos.splice(indice, 1); //Elimina el item de la lista de favoritos
 			localStorage.setItem("favoritos", JSON.stringify(favoritos));
             Toastify({
 				text: "Eliminaste de favoritos: "+ maqueta.favNombre,
@@ -459,7 +499,10 @@ const btnQuitarFavorito = () => {
 		});
 	});
 };
+//-----
 
+//--CONTADOR DE FAVORITOS PARA LA PAGINA--
 function contadorFavoritosNavbar(){
 	document.getElementById("contador-favoritos").innerHTML = favoritos.length;
 };
+//-----
