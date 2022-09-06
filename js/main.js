@@ -92,12 +92,12 @@ const modalCarrito = () => {
 	carrito.forEach((maqueta) => {
 		seccionCarrito += verCarrito(maqueta);
 	});
-	nodoCarrito.innerHTML = seccionCarrito;
-	precioTotalModal();
-	btnSumarCantidad();
-	btnFinalizarCompra();
-	btnVaciarCarrito();
-	btnQuitarCarrito();
+		nodoCarrito.innerHTML = seccionCarrito;
+		precioTotalModal();
+		btnSumarCantidad();
+		btnFinalizarCompra();
+		btnVaciarCarrito();
+		btnQuitarCarrito();
 };
 //-----
 
@@ -181,46 +181,56 @@ const btnVaciarCarrito = () => {
 	const idBotonVaciar = `vaciar-carrito`;
 	const botonNodoVaciar = document.getElementById(idBotonVaciar);
 
-	botonNodoVaciar.addEventListener("click", () => {
-		Swal.fire({
-			title: "¿Estas seguro que deseas vaciar todo el carrito?",
-			text: "Los precios no se guardaran y podrian recibir cambios",
-			icon: "warning",
-			showCancelButton: true,
-			cancelButtonText: "No",
-			confirmButtonColor: "#3085d6",
-			cancelButtonColor: "#d33",
-			confirmButtonText: "SI"
-		}).then((result) => {
-			if (result.isConfirmed) {
-				carrito = []; //Vacia el carrito
-				localStorage.setItem("carrito", JSON.stringify(carrito));
-				modalCarrito();
-				cantidadPrecioNavbar();
-				Swal.fire("Carrito vacio");
-			}
+	if (carrito.length == 0) {
+		botonNodoVaciar.disabled = true;
+	}else{
+		botonNodoVaciar.disabled = false;
+		botonNodoVaciar.addEventListener("click", () => {
+			Swal.fire({
+				title: "¿Estas seguro que deseas vaciar todo el carrito?",
+				text: "Los precios no se guardaran y podrian recibir cambios",
+				icon: "warning",
+				showCancelButton: true,
+				cancelButtonText: "No",
+				confirmButtonColor: "#3085d6",
+				cancelButtonColor: "#d33",
+				confirmButtonText: "SI"
+			}).then((result) => {
+				if (result.isConfirmed) {
+					carrito = []; //Vacia el carrito
+					localStorage.setItem("carrito", JSON.stringify(carrito));
+					modalCarrito();
+					cantidadPrecioNavbar();
+					Swal.fire("Carrito vacio");
+				}
+			});
 		});
-	});
+	};
 };
 
 const btnFinalizarCompra = () => {
 	const idBotonFinalizar = `finalizar-compra`;
 	const botonNodoFinalizar = document.getElementById(idBotonFinalizar);
 
-	botonNodoFinalizar.addEventListener("click", () => {
-		Swal.fire({
-			title: 'Compra Exitosa!',
-			text: 'Gracias por confiar en nosotros',
-			imageUrl: 'https://c.tenor.com/JXXy9Twl-SkAAAAM/thumbs-up-maverick.gif',
-			imageWidth: 400,
-			imageHeight: 300,
-			imageAlt: 'Custom image',
-			});
-		carrito = []; //Vacia el carrito al finalizar la compra
-		localStorage.setItem("carrito", JSON.stringify(carrito));
-		modalCarrito();
-		cantidadPrecioNavbar();
-	});
+	if (carrito.length == 0) {
+		botonNodoFinalizar.disabled = true;
+	}else{
+		botonNodoFinalizar.disabled = false;
+		botonNodoFinalizar.addEventListener("click", () => {
+			Swal.fire({
+				title: 'Compra Exitosa!',
+				text: 'Gracias por confiar en nosotros',
+				imageUrl: 'https://c.tenor.com/JXXy9Twl-SkAAAAM/thumbs-up-maverick.gif',
+				imageWidth: 400,
+				imageHeight: 300,
+				imageAlt: 'Custom image',
+				});
+			carrito = []; //Vacia el carrito al finalizar la compra
+			localStorage.setItem("carrito", JSON.stringify(carrito));
+			modalCarrito();
+			cantidadPrecioNavbar();
+		});
+	};
 };
 
 const btnSumarCantidad = () => {
